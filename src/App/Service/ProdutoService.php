@@ -25,12 +25,39 @@ class ProdutoService
         
         $res = $this->mapper->insert($this->entity);
 
-        return $res;
+        return [
+            'success' =>  true, 
+            'msg' => "Cliente inserido com sucesso "
+        ];
     }
 
+    public function update(array $dados)
+    {
+        $this->entity->setNome($dados['nome']);
+        $this->entity->setDescricao( $dados['descricao'] );
+        $this->entity->setValor( $dados['valor'] );
+        
+        $res = $this->mapper->insert($this->entity);
+
+        return [
+            'success' =>  true, 
+            'msg' => "Cliente  atualizado com sucesso "
+        ];
+    }
+    
+    public function delete($id)
+    {
+        return $this->mapper->delete($id);
+    }
+    
     public function fetchAll()
     {
         return $this->mapper->fetchAll();
     }
 
+    public function find($id)
+    {
+        return $this->mapper->find($id);
+    }
+    
 }
