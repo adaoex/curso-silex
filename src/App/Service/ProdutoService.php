@@ -20,10 +20,9 @@ class ProdutoService
     public function insert(array $dados)
     {
         $this->entity->setNome($dados['nome']);
-        $this->entity->setCnpj(isset($dados['cnpj']) ? $dados['cnpj'] : null);
-        $this->entity->setCpf(isset($dados['cpf']) ? $dados['cpf'] : null);
-        $this->entity->setEmail($dados['email']);
-
+        $this->entity->setDescricao( $dados['descricao'] );
+        $this->entity->setValor( $dados['valor'] );
+        
         $res = $this->mapper->insert($this->entity);
 
         return $res;
