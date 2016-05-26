@@ -9,11 +9,24 @@ namespace App\Entity;
  */
 class Cliente
 {
+
+    private $id;
     private $nome;
     private $email;
     private $cnpj;
     private $cpf;
-    
+
+    function getId()
+    {
+        return $this->id;
+    }
+
+    function setId($id)
+    {
+        $this->id = $id;
+        return $this;
+    }
+
     function getNome()
     {
         return $this->nome;
@@ -58,6 +71,4 @@ class Cliente
         return $this;
     }
 
-
-    
 }
