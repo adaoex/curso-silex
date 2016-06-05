@@ -17,23 +17,20 @@ class ClienteMapper extends MapperAbstract
         parent::__construct($db);
     }
     
-    public function insert(Cliente $cliente)
+    public function insert(array $arr)
     {
         $this->stmt = $this->db->prepare(
-            "insert into clientes (nome, cpf, cnpj, rg, email) 
-             values (:nome, :cpf, :cnpj, :rg, :email )"
+            "insert into clientes (nome, cpf, rg, email) 
+             values (:nome, :cpf, :rg, :email )"
         );
-        $this->stmt->bindParam(':nome',$cliente->getNome());
-        $this->stmt->bindParam(':cpf',$cliente->getCpf());
-        $this->stmt->bindParam(':cnpj',$cliente->getCnpj());
-        $this->stmt->bindParam(':rg',$cliente->getRg());
-        $this->stmt->bindParam(':email',$cliente->getEmail());
+        $this->stmt->bindParam(':nome',$arr['nome']);
+        $this->stmt->bindParam(':cpf',$arr['cpf']);
+        $this->stmt->bindParam(':rg',$arr['rg']);
+        $this->stmt->bindParam(':email',$arr['email']);
         
         $id = $this->flush();
         
-        $cliente->setId( $id );
-        
-        return $cliente;
+        return $id;
     }
 
     public function fetchAll()
@@ -44,7 +41,7 @@ class ClienteMapper extends MapperAbstract
             $clientes[] = [
                 'id' => $r['id'],
                 'cpf' => $r['cpf'],
-                'cnpj' => $r['cnpj'],
+                'rg' => $r['rg'],
                 'email' => $r['email'],
                 'nome' => $r['nome'],
             ];
@@ -60,7 +57,7 @@ class ClienteMapper extends MapperAbstract
             $cliente = [
                 'id' => $r['id'],
                 'cpf' => $r['cpf'],
-                'cnpj' => $r['cnpj'],
+                'rg' => $r['rg'],
                 'email' => $r['email'],
                 'nome' => $r['nome'],
             ];
@@ -73,27 +70,26 @@ class ClienteMapper extends MapperAbstract
         $this->db->exec("delete from clientes where id = $id");
     }
 
-    public function update(Cliente $cliente)
+    public function update(array $arr)
     {
         $this->stmt = $this->db->prepare(
             "update clientes 
                 set nome = :nome, 
                 cpf = :cpf, 
-                cnpj = :cnpj, 
                 rg = :rg, 
                 email = :email
             where id = :id "
         );
-        $this->stmt->bindParam(':id',$cliente->getId());
-        $this->stmt->bindParam(':nome',$cliente->getNome());
-        $this->stmt->bindParam(':cpf',$cliente->getCpf());
-        $this->stmt->bindParam(':cnpj',$cliente->getCnpj());
-        $this->stmt->bindParam(':rg',$cliente->getRg());
-        $this->stmt->bindParam(':email',$cliente->getEmail());
         
-        $this->flush();
+        $this->stmt->bindParam(':id',$arr['id'], \PDO::PARAM_INT);
+        $this->stmt->bindParam(':nome',$arr['nome']);
+        $this->stmt->bindParam(':cpf',$arr['cpf']);
+        $this->stmt->bindParam(':rg',$arr['rg']);
+        $this->stmt->bindParam(':email',$arr['email']);
         
-        return $cliente;
+        $id = $this->flush();
+        
+        return $id;
     }
 
 }

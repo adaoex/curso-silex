@@ -13,61 +13,61 @@ class Cliente
     private $id;
     private $nome;
     private $email;
-    private $cnpj;
     private $cpf;
+    private $rg;
 
-    function getId()
+    public function getId()
     {
         return $this->id;
     }
 
-    function setId($id)
+    public function getNome()
+    {
+        return $this->nome;
+    }
+
+    public function getEmail()
+    {
+        return $this->email;
+    }
+
+    public function getCpf()
+    {
+        return $this->cpf;
+    }
+
+    public function getRg()
+    {
+        return $this->rg;
+    }
+
+    public function setId($id)
     {
         $this->id = $id;
         return $this;
     }
 
-    function getNome()
-    {
-        return $this->nome;
-    }
-
-    function getEmail()
-    {
-        return $this->email;
-    }
-
-    function getCnpj()
-    {
-        return $this->cnpj;
-    }
-
-    function getCpf()
-    {
-        return $this->cpf;
-    }
-
-    function setNome($nome)
+    public function setNome($nome)
     {
         $this->nome = $nome;
         return $this;
     }
 
-    function setEmail($email)
+    public function setEmail($email)
     {
         $this->email = $email;
         return $this;
     }
 
-    function setCnpj($cnpj)
+    public function setCpf($cpf)
     {
-        $this->cnpj = $cnpj;
+        $this->cpf = $cpf;
         return $this;
     }
 
-    function setCpf($cpf)
+    public function setRg($rg)
     {
-        $this->cpf = $cpf;
+        $this->rg = $rg;
         return $this;
     }
 

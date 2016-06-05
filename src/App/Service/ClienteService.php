@@ -24,31 +24,22 @@ class ClienteService
 
     public function insert(array $dados)
     {
-        $this->cliente->setNome($dados['nome']);
-        $this->cliente->setCnpj(isset($dados['cnpj']) ? $dados['cnpj'] : null);
-        $this->cliente->setCpf(isset($dados['cpf']) ? $dados['cpf'] : null);
-        $this->cliente->setEmail($dados['email']);
-
-        $res = $this->mapper->insert($this->cliente);
+        $res = $this->mapper->insert($dados);
 
         return [
             'success' =>  true, 
-            'msg' => "Produto '{$dados['nome']}' inserido com sucesso "
+            'msg' => "Cliente inserido com sucesso "
         ];
     }
     
     public function update(array $dados)
     {
-        $this->cliente->setNome($dados['nome']);
-        $this->cliente->setCnpj(isset($dados['cnpj']) ? $dados['cnpj'] : null);
-        $this->cliente->setCpf(isset($dados['cpf']) ? $dados['cpf'] : null);
-        $this->cliente->setEmail($dados['email']);
-
-        $res = $this->mapper->update($this->cliente);
+        
+        $res = $this->mapper->update($dados);
 
         return [
             'success' =>  true, 
-            'msg' => "Cliente '{$dados['nome']}' atualizado com sucesso "
+            'msg' => "Cliente atualizado com sucesso "
         ];
     }
 

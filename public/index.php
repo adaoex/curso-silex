@@ -1,4 +1,6 @@
 <?php 
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 require_once __DIR__.'/../bootstrap.php';
 
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -36,6 +38,7 @@ $app['produtoProvider'] = function() use ($db){
     return new App\Service\ProdutoService($entity, $mapper);
 };
 
+/* formulários */
 $app->get("/", function() use ($response, $app) {
     $response->setContent("API Silex");
     return $app['twig']->render(
@@ -43,14 +46,39 @@ $app->get("/", function() use ($response, $app) {
     );
 })->bind("index");
 
-/* serviço clientes */
+$app->get("/clientes", function() use ($app) {
+    $service = $service = $app['clienteProvider'];
+    return $app['twig']->render(
+            'cliente/lista.twig', 
+            ['clientes' => $service->fetchAll()]
+    );
+})->bind("lista_clientes");
+
+$app->get("/cliente/novo", function() use ($app) {
+    $service = $service = $app['clienteProvider'];
+    return $app['twig']->render(
+            'cliente/form-cliente.twig',
+            ['cliente' => new App\Entity\Cliente()]
+    );
+})->bind("form_novo_cliente");
+
+$app->get("/cliente/editar/{id}", function($id) use ($app) {
+    $service = $service = $app['clienteProvider'];
+    $cliente  = $service->find($id);
+    return $app['twig']->render(
+            'cliente/form-cliente.twig',
+            ['cliente' => $cliente]
+    );
+})->bind("form_editar_cliente");
+
+
+/* API Clientes */
 $app->get("/api/clientes", function() use ($app) {
     $service = $service = $app['clienteProvider'];
     return new JsonResponse( $service->fetchAll() );
 })->bind("clientes");
 
-$app->post("/api/cliente", function() use ($app){
-    $dados = ["nome"=>"Cliente 01","email"=>"cli01@gmail.com", "cpf"=> 0123];
+$app->post("/api/clientes", function(Request $request) use ($app){
     $dados = [    
         "nome"=> $request->get('nome'),
         "email"=> $request->get('email'),
@@ -62,7 +90,7 @@ $app->post("/api/cliente", function() use ($app){
     return new JsonResponse($result);
 })->bind("novo_cliente");
 
-$app->get('/api/cliente/{id}', function ($id) use ($app) {
+$app->get('/api/clientes/{id}', function ($id) use ($app) {
     $service = $service = $app['clienteProvider'];
     $cliente  = $service->find($id);
     if ( is_null($cliente) ){
@@ -76,6 +104,37 @@ $app->get('/api/cliente/{id}', function ($id) use ($app) {
 ->value('id', 0); /* default values */
 
 
+$app->put('/api/clientes/{id}', function ( Request $request, $id) use ($app){
+    $service = $app['clienteProvider'];
+    $cliente  = $service->find($id);
+    if (is_null($cliente) ){
+        $app->abort(404, "Erro: ID $id não existe!");
+    }
+    $dados =  [
+        "id"=> $id,
+        "nome"=> $request->get('nome'),
+        "email"=> $request->get('email'),
+        "cpf"=> $request->get('cpf'),
+        "rg"=> $request->get('rg'),
+    ];
+    $ret = $service->update( $dados );
+    return $app->json($ret);
+})
+->bind("cliente_editar");
+
+$app->delete('/api/clientes/{id}', function ( $id) use ($app){
+    $service = $app['clienteProvider'];
+    $cliente  = $service->find($id);
+    if (is_null($cliente) ){
+        $app->abort(404, "Erro: ID $id não existe!");
+    }
+    $ret = $service->delete($id);
+    return $app->json($ret);
+})
+->bind("cliente_delete");
+
+
+
 /* Serviço Produtos */
 $app->get("/api/produtos", function() use ($app) {
     $service = $app['produtoProvider'];
@@ -83,7 +142,7 @@ $app->get("/api/produtos", function() use ($app) {
 })->bind("produtos");
 
 /* post */
-$app->post("/api/produto", function( Request $request ) use ($app){
+$app->post("/api/produtos", function( Request $request ) use ($app){
     
     $dados = [    
         "nome"=> $request->get('nome'),
@@ -95,7 +154,7 @@ $app->post("/api/produto", function( Request $request ) use ($app){
     return $app->json($result);
 })->bind("novo_produto");
 
-$app->get('/api/produto/{id}', function ($id) use ($app){
+$app->get('/api/produtos/{id}', function ($id) use ($app){
     $service = $app['produtoProvider'];
     $cliente  = $service->find($id);
     if (is_null($cliente) ){
@@ -105,13 +164,14 @@ $app->get('/api/produto/{id}', function ($id) use ($app){
 })
 ->bind("produto");
 
-$app->put('/api/produto/{id}', function ( Request $request, $id) use ($app){
+$app->put('/api/produtos/{id}', function ( Request $request, $id) use ($app){
     $service = $app['produtoProvider'];
-    $cliente  = $service->find($id);
-    if (is_null($cliente) ){
+    $produto  = $service->find($id);
+    if (is_null($produto) ){
         $app->abort(404, "Erro: ID $id não existe!");
     }
     $dados =  [    
+        "id"=> $id,
         "nome"=> $request->get('nome'),
         "descricao"=> $request->get('descricao'),
         "valor"=> $request->get('valor'),
@@ -121,10 +181,10 @@ $app->put('/api/produto/{id}', function ( Request $request, $id) use ($app){
 })
 ->bind("produto_editar");
 
-$app->delete('/api/produto/{id}', function ( $id) use ($app){
+$app->delete('/api/produtos/{id}', function ( $id) use ($app){
     $service = $app['produtoProvider'];
-    $cliente  = $service->find($id);
-    if (is_null($cliente) ){
+    $produto  = $service->find($id);
+    if (is_null($produto) ){
         $app->abort(404, "Erro: ID $id não existe!");
     }
     $ret = $service->delete($id);
