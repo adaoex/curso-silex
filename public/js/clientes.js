@@ -26,7 +26,7 @@ $(function () {
         if ( id.length === 0 ){
             $.ajax({type: "POST",url: url,data: campos,success: success,dataType: 'json'});
         }else{
-            $.ajax({type: "PUT",url: url,data: campos,success: success,dataType: 'json'});
+            $.ajax({type: "POST",url: url,data: campos,success: success,dataType: 'json'});
         }
     });
     

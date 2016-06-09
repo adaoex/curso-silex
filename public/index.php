@@ -120,7 +120,8 @@ $app->put('/api/clientes/{id}', function ( Request $request, $id) use ($app){
     $ret = $service->update( $dados );
     return $app->json($ret);
 })
-->bind("cliente_editar");
+->bind("cliente_editar")
+->method('PUT|POST');
 
 $app->delete('/api/clientes/{id}', function ( $id) use ($app){
     $service = $app['clienteProvider'];
