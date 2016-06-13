@@ -132,8 +132,8 @@ $app->delete('/api/clientes/{id}', function ( $id) use ($app){
     $ret = $service->delete($id);
     return $app->json($ret);
 })
-->bind("cliente_delete");
-
+->bind("cliente_delete")
+->method('DELETE|POST');
 
 
 /* Serviço Produtos */
