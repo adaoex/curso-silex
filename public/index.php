@@ -8,6 +8,7 @@ require_once __DIR__.'/../bootstrap.php';
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Validator\Constraints as Assert;
 
 $response = new Response;
 
@@ -87,6 +88,36 @@ $app->post("/api/clientes", function(Request $request) use ($app){
         "cpf"=> $request->get('cpf'),
         "rg"=> $request->get('rg'),
     ];
+    $constraint = new Assert\Collection(array(
+        'nome' => array(
+            new Assert\NotBlank(), 
+            new Assert\Length(array('min' => 3, 'max' => 255))
+        ),
+        'email' => array(
+            new Assert\NotBlank(), 
+            new Assert\Email(),
+        ),
+        'cpf' => array(
+            new Assert\NotBlank(), 
+            new App\Validator\Cpf(),
+        ),
+        'rg' => array(
+            new Assert\NotBlank(), 
+            new Assert\Length(array('min' => 3))
+        ),
+    ));
+    
+    $errors = $app['validator']->validate($dados, $constraint);
+    if (count($errors) > 0) {
+        $arr_erros = [];
+        foreach ($errors as $error) {
+            $arr_erros[] = $error->getPropertyPath().' '.$error->getMessage();
+        }
+        return new JsonResponse(array(
+            'errors' => $arr_erros
+        ));
+    } 
+    
     $service = $app['clienteProvider'];
     $result = $service->insert($dados);
     return new JsonResponse($result);
@@ -95,8 +126,10 @@ $app->post("/api/clientes", function(Request $request) use ($app){
 $app->get('/api/clientes/{id}', function ($id) use ($app) {
     $service = $service = $app['clienteProvider'];
     $cliente  = $service->find($id);
-    if ( is_null($cliente) ){
-        $app->abort(404, "Erro: ID $id não existe!");
+    if (is_null($cliente) ){
+        return $app->json(array(
+            'errors' => ["Erro: Registro com ID = $id não existe!"]
+        ));
     }
     return $app->json($cliente);
 })
@@ -110,89 +143,68 @@ $app->put('/api/clientes/{id}', function ( Request $request, $id) use ($app){
     $service = $app['clienteProvider'];
     $cliente  = $service->find($id);
     if (is_null($cliente) ){
-        $app->abort(404, "Erro: ID $id não existe!");
+        return $app->json(array(
+            'errors' => ["Erro: Registro com ID = $id não existe!"]
+        ));
     }
     $dados =  [
-        "id"=> $id,
         "nome"=> $request->get('nome'),
         "email"=> $request->get('email'),
         "cpf"=> $request->get('cpf'),
         "rg"=> $request->get('rg'),
     ];
+    $constraint = new Assert\Collection(array(
+        'nome' => array(
+            new Assert\NotBlank(), 
+            new Assert\Length(array('min' => 3, 'max' => 255))
+        ),
+        'email' => array(
+            new Assert\NotBlank(), 
+            new Assert\Email(),
+        ),
+        'cpf' => array(
+            new Assert\NotBlank(), 
+            new App\Validator\Cpf(),
+        ),
+        'rg' => array(
+            new Assert\NotBlank(), 
+            new Assert\Length(array('min' => 3))
+        ),
+    ));
+    
+    $errors = $app['validator']->validate($dados, $constraint);
+    if (count($errors) > 0) {
+        $arr_erros = [];
+        foreach ($errors as $error) {
+            $arr_erros[] = $error->getPropertyPath().' '.$error->getMessage();
+        }
+        return new JsonResponse(array(
+            'errors' => $arr_erros
+        ));
+    } 
+    
+    $dados['id'] = $id;
+    
     $ret = $service->update( $dados );
     return $app->json($ret);
 })
 ->bind("cliente_editar")
+->assert('id', '\d+')
 ->method('PUT|POST');
 
 $app->delete('/api/clientes/{id}', function ( $id) use ($app){
     $service = $app['clienteProvider'];
     $cliente  = $service->find($id);
     if (is_null($cliente) ){
-        $app->abort(404, "Erro: ID $id não existe!");
+        return $app->json(array(
+            'errors' => ["Erro: Registro com ID = $id não existe!"]
+        ));
     }
     $ret = $service->delete($id);
     return $app->json($ret);
 })
 ->bind("cliente_delete")
+->assert('id', '\d+')
 ->method('DELETE|POST');
-
-
-/* Serviço Produtos */
-$app->get("/api/produtos", function() use ($app) {
-    $service = $app['produtoProvider'];
-    return $app->json( $service->fetchAll() );
-})->bind("produtos");
-
-/* post */
-$app->post("/api/produtos", function( Request $request ) use ($app){
-    
-    $dados = [    
-        "nome"=> $request->get('nome'),
-        "descricao"=> $request->get('descricao'),
-        "valor"=> $request->get('valor'),
-    ];
-    $service = $app['produtoProvider'];
-    $result = $service->insert($dados);
-    return $app->json($result);
-})->bind("novo_produto");
-
-$app->get('/api/produtos/{id}', function ($id) use ($app){
-    $service = $app['produtoProvider'];
-    $cliente  = $service->find($id);
-    if (is_null($cliente) ){
-        $app->abort(404, "Erro: ID $id não existe!");
-    }
-    return $app->json($cliente);
-})
-->bind("produto");
-
-$app->put('/api/produtos/{id}', function ( Request $request, $id) use ($app){
-    $service = $app['produtoProvider'];
-    $produto  = $service->find($id);
-    if (is_null($produto) ){
-        $app->abort(404, "Erro: ID $id não existe!");
-    }
-    $dados =  [    
-        "id"=> $id,
-        "nome"=> $request->get('nome'),
-        "descricao"=> $request->get('descricao'),
-        "valor"=> $request->get('valor'),
-    ];
-    $ret = $service->update( $dados );
-    return $app->json($ret);
-})
-->bind("produto_editar");
-
-$app->delete('/api/produtos/{id}', function ( $id) use ($app){
-    $service = $app['produtoProvider'];
-    $produto  = $service->find($id);
-    if (is_null($produto) ){
-        $app->abort(404, "Erro: ID $id não existe!");
-    }
-    $ret = $service->delete($id);
-    return $app->json($ret);
-})
-->bind("produto_delete");
 
 $app->run();

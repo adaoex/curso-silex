@@ -19,4 +19,6 @@ $app->register(new DoctrineServiceProvider(), array(
     ),
 ));
 
+$app->register(new Silex\Provider\ValidatorServiceProvider());
+
 $app->register(new Silex\Provider\AssetServiceProvider());
