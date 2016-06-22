@@ -27,6 +27,10 @@ class CpfValidator extends ConstraintValidator
         if (strlen($cpf) <> 11)
             return false;
 
+         if (preg_match('/(\d)\1{10}/', $cpf) ){
+            return false;
+        }
+        
         for ($i = 0; $i < 9; $i++) {
             $soma += (($i + 1) * $cpf[$i]);
         }
